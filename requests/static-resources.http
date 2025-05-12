@@ -1,0 +1,21 @@
+###
+GET {{basePath}}
+
+> {%
+
+  client.test('Landing page available', () => {
+    client.assert(response.status === 200);
+  })
+
+%}
+
+###
+GET {{basePath}}/openapi.yml
+
+> {%
+
+  client.test('OpenAPI available', () => {
+    client.assert(response.status === 200);
+  })
+
+%}
