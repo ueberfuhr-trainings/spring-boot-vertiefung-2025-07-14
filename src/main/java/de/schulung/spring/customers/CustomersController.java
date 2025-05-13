@@ -1,5 +1,7 @@
 package de.schulung.spring.customers;
 
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -8,10 +10,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -38,21 +40,10 @@ class CustomersController {
     produces = MediaType.APPLICATION_JSON_VALUE
   )
   ResponseEntity<Customer> createCustomer(
+    @Valid
     @RequestBody
     Customer customer
   ) {
-    if (!
-      Arrays
-        .asList("active", "locked", "disabled")
-        .contains(customer.getState())
-      || null == customer.getBirthdate()
-      || null == customer.getName()
-      || null != customer.getUuid()
-    ) {
-      return ResponseEntity
-        .badRequest()
-        .build();
-    }
     customer.setUuid(UUID.randomUUID());
     customers.put(customer.getUuid(), customer);
     var location = ServletUriComponentsBuilder
@@ -66,34 +57,26 @@ class CustomersController {
   }
 
   @GetMapping("/{uuid}")
-  ResponseEntity<Customer> findCustomerById(
+  Customer findCustomerById(
     @PathVariable("uuid")
     UUID uuid
   ) {
     final var result = customers.get(uuid);
     if (null == result) {
-      return ResponseEntity
-        .notFound()
-        .build();
+      throw new NotFoundException();
     }
-    return ResponseEntity
-      .ok()
-      .body(result);
+    return result;
   }
 
   @DeleteMapping("/{uuid}")
-  ResponseEntity<Void> deleteCustomer(
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  void deleteCustomer(
     @PathVariable("uuid")
     UUID uuid
   ) {
     if (null == customers.remove(uuid)) {
-      return ResponseEntity
-        .notFound()
-        .build();
+      throw new NotFoundException();
     }
-    return ResponseEntity
-      .noContent()
-      .build();
   }
 
 }
