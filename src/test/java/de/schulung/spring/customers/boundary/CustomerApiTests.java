@@ -1,4 +1,4 @@
-package de.schulung.spring.customers;
+package de.schulung.spring.customers.boundary;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;

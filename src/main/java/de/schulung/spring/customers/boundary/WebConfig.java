@@ -1,4 +1,4 @@
-package de.schulung.spring.customers;
+package de.schulung.spring.customers.boundary;
 
 import jakarta.annotation.Nonnull;
 import org.springframework.context.annotation.Bean;
