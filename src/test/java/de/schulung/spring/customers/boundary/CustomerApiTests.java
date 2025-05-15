@@ -1,8 +1,11 @@
 package de.schulung.spring.customers.boundary;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -11,13 +14,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -82,6 +80,99 @@ class CustomerApiTests {
           .accept(MediaType.APPLICATION_XML)
       )
       .andExpect(status().isNotAcceptable());
+  }
+
+  @Test
+  void shouldNotGetCustomersWithInvalidStateParameter() throws Exception {
+    mvc
+      .perform(
+        get("/customers")
+          .param("state", "gelbekatze")
+          .accept(MediaType.APPLICATION_JSON)
+      )
+      .andExpect(status().isBadRequest());
+  }
+
+  @RequiredArgsConstructor
+  @Getter
+  private enum StateParameter {
+    ACTIVE("active"),
+    LOCKED("locked"),
+    DISABLED("disabled");
+    private final String parameterValue;
+  }
+
+  @ParameterizedTest
+  @EnumSource(StateParameter.class)
+  void shouldGetCustomersByState(StateParameter parameter) throws Exception {
+    var newCustomerBody = mvc.perform(
+        post("/customers")
+          .contentType(MediaType.APPLICATION_JSON)
+          .content(String.format(
+              """
+                  {
+                    "name": "Tom Mayer",
+                    "birthdate": "2005-05-12",
+                    "state": "%s"
+                  }
+                """,
+              parameter.getParameterValue()
+            )
+          )
+          .accept(MediaType.APPLICATION_JSON)
+      )
+      .andExpect(status().isCreated())
+      .andReturn()
+      .getResponse()
+      .getContentAsString();
+    var uuid = new ObjectMapper()
+      .readTree(newCustomerBody)
+      .path("uuid")
+      .asText();
+
+    // we need to find it with the state parameter
+    mvc
+      .perform(
+        get("/customers")
+          .param("state", parameter.getParameterValue())
+          .accept(MediaType.APPLICATION_JSON)
+      )
+      .andExpect(status().isOk())
+      .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+      .andExpect(
+        jsonPath(
+          String
+            .format(
+              "$[?(@.uuid == '%s')]",
+              uuid
+            )
+        )
+          .exists()
+      );
+    // we must not find it with other state parameters
+    for (StateParameter p : StateParameter.values()) {
+      if (p != parameter) {
+        mvc
+          .perform(
+            get("/customers")
+              .param("state", p.getParameterValue())
+              .accept(MediaType.APPLICATION_JSON)
+          )
+          .andExpect(status().isOk())
+          .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+          .andExpect(
+            jsonPath(
+              String
+                .format(
+                  "$[?(@.uuid == '%s')]",
+                  uuid
+                )
+            )
+              .doesNotExist()
+          );
+      }
+    }
+
   }
 
   /*
