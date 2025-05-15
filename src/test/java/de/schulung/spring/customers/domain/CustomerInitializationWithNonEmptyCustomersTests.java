@@ -11,7 +11,11 @@ import org.springframework.test.context.bean.override.mockito.MockReset;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
+@SpringBootTest(
+  properties = {
+    "application.initialization.enabled=true",
+  }
+)
 @Import(CustomerInitializationWithNonEmptyCustomersTests.MockConfiguration.class)
 class CustomerInitializationWithNonEmptyCustomersTests {
 

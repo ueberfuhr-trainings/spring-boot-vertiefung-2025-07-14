@@ -13,11 +13,11 @@ import static org.mockito.Mockito.*;
 
 @SpringBootTest(
   properties = {
-    "application.initialization.enabled=true",
+    "application.initialization.enabled=false",
   }
 )
-@Import(CustomerInitializationWithEmptyCustomersTests.MockConfiguration.class)
-class CustomerInitializationWithEmptyCustomersTests {
+@Import(CustomerInitializationDisabledTests.MockConfiguration.class)
+class CustomerInitializationDisabledTests {
 
   @Autowired
   CustomersService customersService;
@@ -30,7 +30,8 @@ class CustomerInitializationWithEmptyCustomersTests {
         CustomersService.class,
         MockReset.withSettings(MockReset.AFTER)
       );
-      when(result.count())
+      lenient()
+        .when(result.count())
         .thenReturn(0L);
       return result;
     }
@@ -38,9 +39,7 @@ class CustomerInitializationWithEmptyCustomersTests {
 
   @Test
   void shouldInitializeCustomer() {
-    verify(customersService)
-      .count();
-    verify(customersService, atLeastOnce())
+    verify(customersService, never())
       .create(any());
   }
 
