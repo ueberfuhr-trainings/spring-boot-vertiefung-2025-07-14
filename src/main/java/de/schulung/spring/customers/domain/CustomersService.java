@@ -1,4 +1,4 @@
-package de.schulung.spring.customers;
+package de.schulung.spring.customers.domain;
 
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;

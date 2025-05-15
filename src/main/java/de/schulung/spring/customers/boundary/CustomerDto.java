@@ -1,4 +1,4 @@
-package de.schulung.spring.customers;
+package de.schulung.spring.customers.boundary;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class Customer {
+public class CustomerDto {
 
   @JsonProperty(
     access = JsonProperty.Access.READ_ONLY
@@ -23,6 +23,5 @@ public class Customer {
   private LocalDate birthdate;
   @Pattern(regexp = "active|locked|disabled")
   private String state = "active";
-
 
 }

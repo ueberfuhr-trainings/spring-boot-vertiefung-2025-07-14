@@ -1,5 +1,6 @@
-package de.schulung.spring.customers;
+package de.schulung.spring.customers.boundary;
 
+import de.schulung.spring.customers.domain.CustomersService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,23 +26,26 @@ import java.util.stream.Stream;
 class CustomersController {
 
   private final CustomersService customersService;
+  private final CustomerDtoMapper mapper;
 
   @GetMapping(
     produces = MediaType.APPLICATION_JSON_VALUE
   )
-  Stream<Customer> getCustomers() {
+  Stream<CustomerDto> getCustomers() {
     return customersService
-      .findAll();
+      .findAll()
+      .map(mapper::map);
   }
 
   @PostMapping(
     produces = MediaType.APPLICATION_JSON_VALUE
   )
-  ResponseEntity<Customer> createCustomer(
+  ResponseEntity<CustomerDto> createCustomer(
     @Valid
     @RequestBody
-    Customer customer
+    CustomerDto customerDto
   ) {
+    var customer = mapper.map(customerDto);
     customersService.create(customer);
     var location = ServletUriComponentsBuilder
       .fromCurrentRequest()
@@ -50,16 +54,17 @@ class CustomersController {
       .toUri();
     return ResponseEntity
       .created(location)
-      .body(customer);
+      .body(mapper.map(customer));
   }
 
   @GetMapping("/{uuid}")
-  Customer findCustomerById(
+  CustomerDto findCustomerById(
     @PathVariable("uuid")
     UUID uuid
   ) {
     return customersService
       .findById(uuid)
+      .map(mapper::map)
       .orElseThrow(NotFoundException::new);
   }
 
