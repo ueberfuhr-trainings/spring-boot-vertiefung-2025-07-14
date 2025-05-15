@@ -17,6 +17,10 @@ public class CustomersService {
   // TODO replace
   private final Map<UUID, Customer> customers = new ConcurrentHashMap<>();
 
+  public long count() {
+    return customers.size();
+  }
+
   public Stream<Customer> findAll() {
     return customers
       .values()
