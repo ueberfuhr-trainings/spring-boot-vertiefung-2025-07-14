@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: Customer API Provider
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
+      fail-on-ignored-properties: true
+application:
+  initialization:
+    enabled: ${APP_INITIALIZATION_ENABLED:false}
