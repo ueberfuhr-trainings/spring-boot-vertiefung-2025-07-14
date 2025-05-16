@@ -8,3 +8,6 @@ indent_size = 2
 
 [*.md]
 ij_formatter_enabled = false
+
+[*.java]
+ij_java_names_count_to_use_import_on_demand = 99

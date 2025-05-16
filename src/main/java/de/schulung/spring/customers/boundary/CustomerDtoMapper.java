@@ -1,11 +1,10 @@
 package de.schulung.spring.customers.boundary;
 
+import de.schulung.spring.customers.domain.Customer;
+import de.schulung.spring.customers.domain.CustomerState;
 import org.mapstruct.Mapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
-
-import de.schulung.spring.customers.domain.Customer;
-import de.schulung.spring.customers.domain.CustomerState;
 
 @Mapper(componentModel = "spring")
 public interface CustomerDtoMapper {
