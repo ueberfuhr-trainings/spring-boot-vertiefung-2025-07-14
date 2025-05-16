@@ -27,6 +27,11 @@ public class CustomersService {
       .stream();
   }
 
+  public Stream<Customer> findAllByState(CustomerState state) {
+    return findAll()
+      .filter(c -> c.getState() == state);
+  }
+
   public Optional<Customer> findById(UUID uuid) {
     return Optional
       .ofNullable(customers.get(uuid));
