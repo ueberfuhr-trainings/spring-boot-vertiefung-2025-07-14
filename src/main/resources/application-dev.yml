@@ -1,3 +1,6 @@
 application:
+  cors:
+    enabled: true
+    allowed-origins: '*.swagger.io'
   initialization:
     enabled: true
