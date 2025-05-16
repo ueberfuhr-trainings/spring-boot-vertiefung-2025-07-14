@@ -2,6 +2,7 @@ package de.schulung.spring.customers.domain;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -19,6 +20,7 @@ import static org.mockito.Mockito.when;
     "application.initialization.enabled=true",
   }
 )
+@AutoConfigureTestDatabase
 @Import(CustomerInitializationWithEmptyCustomersTests.MockConfiguration.class)
 class CustomerInitializationWithEmptyCustomersTests {
 
