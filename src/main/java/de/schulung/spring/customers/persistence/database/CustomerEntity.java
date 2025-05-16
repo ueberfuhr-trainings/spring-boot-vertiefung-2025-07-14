@@ -20,6 +20,7 @@ public class CustomerEntity {
   private String name;
   @Column(name = "BIRTH_DATE")
   private LocalDate birthdate;
+  // @Enumerated(EnumType.STRING)
   private CustomerState state;
 
 
