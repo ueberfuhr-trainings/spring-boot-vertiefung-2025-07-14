@@ -4,10 +4,7 @@ import de.schulung.spring.customers.domain.Customer;
 import de.schulung.spring.customers.domain.CustomersService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
@@ -24,16 +21,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest
-@ComponentScan(
-  basePackageClasses = CustomerDtoMapper.class
-)
+@BoundaryTest
 public class CustomerApiWithMockedServiceTests {
 
   @Autowired
   MockMvc mvc;
-  @MockitoBean
-  CustomersService customersService;
+  @Autowired
+  CustomersService customersServiceMock;
 
   @Test
   void shouldUpdateCustomer() throws Exception {
@@ -45,7 +39,7 @@ public class CustomerApiWithMockedServiceTests {
       .name("Tom Mayer")
       .birthdate(LocalDate.of(2005, Month.MAY, 12))
       .build();
-    when(customersService.findById(uuid))
+    when(customersServiceMock.findById(uuid))
       .thenReturn(Optional.of(customer));
 
     // Test
@@ -63,7 +57,7 @@ public class CustomerApiWithMockedServiceTests {
       .andExpect(status().isNotFound());
 
     // Verification
-    verify(customersService).update(any(Customer.class));
+    verify(customersServiceMock).update(any(Customer.class));
 
   }
 
@@ -71,7 +65,7 @@ public class CustomerApiWithMockedServiceTests {
   void shouldReturnNotFoundWhenCustomerNotExists() throws Exception {
 
     var uuid = UUID.randomUUID();
-    when(customersService.findById(uuid))
+    when(customersServiceMock.findById(uuid))
       .thenReturn(Optional.empty());
 
     mvc
@@ -98,7 +92,7 @@ public class CustomerApiWithMockedServiceTests {
       )
       .andExpect(status().isBadRequest());
 
-    verify(customersService, never()).create(any());
+    verify(customersServiceMock, never()).create(any());
 
   }
 

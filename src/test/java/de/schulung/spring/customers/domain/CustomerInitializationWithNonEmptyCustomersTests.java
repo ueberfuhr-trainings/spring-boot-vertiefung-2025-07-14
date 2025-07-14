@@ -1,52 +1,58 @@
 package de.schulung.spring.customers.domain;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.bean.override.mockito.MockReset;
+import org.springframework.test.annotation.DirtiesContext;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import java.time.LocalDate;
+import java.time.Month;
 
-@SpringBootTest(
-  properties = {
-    "application.initialization.enabled=true",
-  }
-)
-@AutoConfigureTestDatabase
-@Import(CustomerInitializationWithNonEmptyCustomersTests.MockConfiguration.class)
+import static org.assertj.core.api.Assertions.assertThat;
+
+@DomainTest(initializationEnabled = true)
+// test configuration will lead to a new context, so we destroy the context after this
+// test class execution
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 class CustomerInitializationWithNonEmptyCustomersTests {
 
   @Autowired
   CustomersService customersService;
 
+  static final Customer sampleCustomer = Customer
+    .builder()
+    .name("Tom")
+    .birthdate(LocalDate.of(1980, Month.APRIL, 1))
+    .build();
+
   @TestConfiguration
   static class MockConfiguration {
     @Bean
-    public CustomersService customersService() {
-      final var result = mock(
-        CustomersService.class,
-        MockReset.withSettings(MockReset.AFTER)
-      );
-      when(result.count())
-        .thenReturn(1L);
-      return result;
+    public BeanPostProcessor customersServiceInitializerBeforeInjectionPostProcessor() {
+      //noinspection NullableProblems
+      return new BeanPostProcessor() {
+        @Override
+        public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+          if (bean instanceof CustomersService service) {
+            service.create(sampleCustomer);
+          }
+          return BeanPostProcessor.super.postProcessAfterInitialization(bean, beanName);
+        }
+      };
     }
   }
 
   @Test
   void shouldInitializeCustomer() {
-    verify(customersService)
-      .count();
-    verify(customersService, never())
-      .create(any());
+    assertThat(this.customersService.findAll())
+      .hasSize(1)
+      .first()
+      .usingRecursiveComparison()
+      .isEqualTo(sampleCustomer);
+
   }
 
 }

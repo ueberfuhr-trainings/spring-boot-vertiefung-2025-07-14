@@ -27,7 +27,8 @@ public class CorsConfiguration {
 
   @Bean
   WebMvcConfigurer corsConfigurer(
-    @Value("${application.cors.allowed-origins}") final String allowedOrigins
+    // this would not allow to use lists in yml - only comma-separated values
+    @Value("${application.cors.allowed-origins}") final String[] allowedOrigins
   ) {
     return new WebMvcConfigurer() {
       @Override
@@ -37,7 +38,7 @@ public class CorsConfiguration {
           .exposedHeaders(LOCATION, LINK)
           .allowedHeaders(ORIGIN, CONTENT_TYPE, ACCEPT, ACCEPT_LANGUAGE, IF_MATCH, IF_NONE_MATCH, AUTHORIZATION)
           .allowedMethods("GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS")
-          .allowedOriginPatterns(allowedOrigins.split(","))
+          .allowedOriginPatterns(allowedOrigins)
           .allowCredentials(false);
       }
     };
