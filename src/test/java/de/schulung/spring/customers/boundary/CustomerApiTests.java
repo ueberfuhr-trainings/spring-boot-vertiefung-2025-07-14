@@ -18,6 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -30,6 +31,65 @@ class CustomerApiTests {
 
   @Autowired
   MockMvc mvc;
+
+
+  /*
+   * PUT /customers/{id}
+   *  -> 204 -> GET /customers/{id} -> geänderte Daten
+   *  -> 400 (wenn ohne Name)
+   *  -> 404 (wenn ID nicht gefunden)
+   */
+
+  @Test
+  void shouldUpdateCustomer() throws Exception {
+    // setup: create customer and get uuid
+    var newCustomerBody = mvc.perform(
+        post("/customers")
+          .contentType(MediaType.APPLICATION_JSON)
+          .content("""
+              {
+                "name": "Tom Mayer",
+                "birthdate": "2005-05-12",
+                "state": "active"
+              }
+            """)
+          .accept(MediaType.APPLICATION_JSON)
+      )
+      .andExpect(status().isCreated())
+      .andReturn()
+      .getResponse()
+      .getContentAsString();
+    var uuid = new ObjectMapper()
+      .readTree(newCustomerBody)
+      .path("uuid")
+      .asText();
+
+    // Test
+    mvc.perform(
+        put("/customers/{id}", uuid)
+          .contentType(MediaType.APPLICATION_JSON)
+          .content("""
+              {
+                "name": "Tom Smith",
+                "birthdate": "2006-05-12",
+                "state": "locked"
+              }
+            """)
+      )
+      .andExpect(status().isNoContent());
+
+    // Verification
+    mvc.perform(
+        get("/customers/{id}", uuid)
+          .accept(MediaType.APPLICATION_JSON)
+      )
+      .andExpect(status().isOk())
+      .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+      .andExpect(jsonPath("$.name").value("Tom Smith"))
+      .andExpect(jsonPath("$.birthdate").value("2006-05-12"))
+      .andExpect(jsonPath("$.state").value("locked"));
+
+  }
 
   // GET /customers -> 200
   @Test

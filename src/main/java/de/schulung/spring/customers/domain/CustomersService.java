@@ -40,4 +40,7 @@ public class CustomersService {
     return sink.delete(uuid);
   }
 
+  public void update(Customer any) {
+    // TODO
+  }
 }
