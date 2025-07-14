@@ -26,6 +26,18 @@ public interface CustomersSink {
 
   void create(Customer customer);
 
+  default boolean update(Customer customer) {
+    var result = findById(customer.getUuid());
+    if (result.isEmpty()) {
+      return false;
+    }
+    var oldCustomer = result.get();
+    oldCustomer.setState(customer.getState());
+    oldCustomer.setName(customer.getName());
+    oldCustomer.setBirthdate(customer.getBirthdate());
+    return true;
+  }
+
   boolean delete(UUID uuid);
 
 }

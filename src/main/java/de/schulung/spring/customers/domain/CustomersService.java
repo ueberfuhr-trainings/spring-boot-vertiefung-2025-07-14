@@ -36,11 +36,12 @@ public class CustomersService {
     sink.create(customer);
   }
 
+  public boolean update(@Valid Customer customer) {
+    return sink.update(customer);
+  }
+
   public boolean delete(UUID uuid) {
     return sink.delete(uuid);
   }
 
-  public void update(Customer any) {
-    // TODO
-  }
 }
