@@ -32,6 +32,15 @@ public class InMemoryCustomersSink
   }
 
   @Override
+  public boolean update(Customer customer) {
+    if (!customers.containsKey(customer.getUuid())) {
+      return false;
+    }
+    customers.put(customer.getUuid(), customer);
+    return true;
+  }
+
+  @Override
   public boolean delete(UUID uuid) {
     return customers.remove(uuid) != null;
   }
