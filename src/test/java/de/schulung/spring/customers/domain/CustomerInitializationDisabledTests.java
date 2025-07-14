@@ -2,50 +2,20 @@ package de.schulung.spring.customers.domain;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.bean.override.mockito.MockReset;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest(
-  properties = {
-    "application.initialization.enabled=false",
-  }
-)
-@AutoConfigureTestDatabase
-@Import(CustomerInitializationDisabledTests.MockConfiguration.class)
+@DomainTest(initializationEnabled = false)
 class CustomerInitializationDisabledTests {
 
   @Autowired
   CustomersService customersService;
 
-  @TestConfiguration
-  static class MockConfiguration {
-    @Bean
-    public CustomersService customersService() {
-      final var result = mock(
-        CustomersService.class,
-        MockReset.withSettings(MockReset.AFTER)
-      );
-      lenient()
-        .when(result.count())
-        .thenReturn(0L);
-      return result;
-    }
-  }
 
   @Test
-  void shouldInitializeCustomer() {
-    verify(customersService, never())
-      .create(any());
+  void shouldNotInitializeCustomer() {
+    assertThat(this.customersService.count())
+      .isEqualTo(0);
   }
 
 }
