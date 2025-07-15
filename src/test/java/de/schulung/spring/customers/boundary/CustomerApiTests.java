@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -484,6 +486,24 @@ class CustomerApiTests {
       .andExpect(status().isCreated())
       .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
       .andExpect(jsonPath("$.state").value("active"));
+  }
+
+  @Test
+  void shouldNotCreateCustomerThatIsNotAdult() throws Exception {
+    shouldNotCreateInvalidCustomer(
+      String.format("""
+          {
+            "name": "Tom Mayer",
+            "birthdate": "%s",
+            "state": "active"
+          }
+          """,
+        LocalDate
+          .now()
+          .minusYears(10)
+          .format(DateTimeFormatter.ISO_DATE)
+      )
+    );
   }
 
 }
