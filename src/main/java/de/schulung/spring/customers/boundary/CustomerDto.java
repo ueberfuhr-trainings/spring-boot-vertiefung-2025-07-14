@@ -2,7 +2,6 @@ package de.schulung.spring.customers.boundary;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,7 +20,7 @@ public class CustomerDto {
   private String name;
   @NotNull
   private LocalDate birthdate;
-  @Pattern(regexp = "active|locked|disabled")
+  @CustomerStateParam
   private String state = "active";
 
 }
