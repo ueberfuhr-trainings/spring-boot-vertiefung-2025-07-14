@@ -1,7 +1,6 @@
 package de.schulung.spring.customers.boundary;
 
 import jakarta.annotation.Nonnull;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,18 +27,21 @@ public class CorsConfiguration {
   @Bean
   WebMvcConfigurer corsConfigurer(
     // this would not allow to use lists in yml - only comma-separated values
-    @Value("${application.cors.allowed-origins}") final String[] allowedOrigins
+    //@Value("${application.cors.allowed-origins}") final String[] allowedOrigins
+    CorsConfigurationProperties corsConfig
   ) {
     return new WebMvcConfigurer() {
       @Override
       public void addCorsMappings(@Nonnull CorsRegistry registry) {
-        registry
-          .addMapping("/**")
-          .exposedHeaders(LOCATION, LINK)
-          .allowedHeaders(ORIGIN, CONTENT_TYPE, ACCEPT, ACCEPT_LANGUAGE, IF_MATCH, IF_NONE_MATCH, AUTHORIZATION)
-          .allowedMethods("GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS")
-          .allowedOriginPatterns(allowedOrigins)
-          .allowCredentials(false);
+        if (corsConfig.isEnabled()) {
+          registry
+            .addMapping("/**")
+            .exposedHeaders(LOCATION, LINK)
+            .allowedHeaders(ORIGIN, CONTENT_TYPE, ACCEPT, ACCEPT_LANGUAGE, IF_MATCH, IF_NONE_MATCH, AUTHORIZATION)
+            .allowedMethods("GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS")
+            .allowedOriginPatterns(corsConfig.getAllowedOrigins())
+            .allowCredentials(corsConfig.isAllowCredentials());
+        }
       }
     };
   }
