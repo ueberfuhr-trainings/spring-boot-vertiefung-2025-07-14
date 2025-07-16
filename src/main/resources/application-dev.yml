@@ -7,6 +7,8 @@ application:
 spring:
   datasource:
     url: jdbc:h2:./.local-db/customers
+    username: sa
+    password:
   jpa:
     show-sql: true
     hibernate:

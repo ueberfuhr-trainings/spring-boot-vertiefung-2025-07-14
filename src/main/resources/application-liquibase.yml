@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: jdbc:h2:./.local-db/customers-liquibase
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  liquibase:
+    enabled: true
+  h2:
+    console:
+      enabled: true
