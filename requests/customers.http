@@ -1,0 +1,53 @@
+###
+POST {{basePath}}/customers
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Tom",
+  "birthdate": "2001-10-05"
+}
+
+> {%
+
+  client.test('Customer created', () => {
+    client.assert(response.status === 201);
+  });
+  client.global.set("uuid", response.body['uuid']);
+%}
+
+###
+PUT {{basePath}}/customers/{{uuid}}/address
+Content-Type: application/json
+
+{
+  "street": "Musterstraße",
+  "number": "1",
+  "zip": "12345",
+  "city": "Musterstadt"
+}
+
+###
+GET {{basePath}}/customers
+Accept: application/json
+
+> {%
+
+  client.test('Customers available', () => {
+    client.assert(response.status === 200);
+  })
+
+%}
+
+###
+GET {{basePath}}/customers/{{uuid}}/address
+Accept: application/json
+
+> {%
+
+  client.test('Address available', () => {
+    client.assert(response.status === 200);
+  })
+
+%}
+

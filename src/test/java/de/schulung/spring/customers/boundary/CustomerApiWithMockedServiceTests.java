@@ -54,7 +54,7 @@ public class CustomerApiWithMockedServiceTests {
               }
             """)
       )
-      .andExpect(status().isNotFound());
+      .andExpect(status().isNoContent());
 
     // Verification
     verify(customersServiceMock).update(any(Customer.class));

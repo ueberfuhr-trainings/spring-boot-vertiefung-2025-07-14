@@ -56,12 +56,14 @@ public class JpaCustomersSink
 
   @Override
   public boolean update(Customer customer) {
-    if (!repo.existsById(customer.getUuid())) {
+    var existingCustomerResult = repo.findById(customer.getUuid());
+    if (existingCustomerResult.isEmpty()) {
       return false;
     }
-    var entity = mapper.map(customer);
-    repo.save(entity);
-    mapper.copy(entity, customer);
+    var existingCustomer = existingCustomerResult.get();
+    mapper.copy(customer, existingCustomer);
+    repo.save(existingCustomer);
+    mapper.copy(existingCustomer, customer);
     return true;
   }
 
