@@ -1,6 +1,7 @@
 package de.schulung.spring.customers.persistence.inmemory;
 
 import de.schulung.spring.customers.domain.Customer;
+import de.schulung.spring.customers.domain.CustomerFetchOptions;
 import de.schulung.spring.customers.domain.CustomersSink;
 
 import java.util.Map;
@@ -14,7 +15,7 @@ public class InMemoryCustomersSink
   private final Map<UUID, Customer> customers = new ConcurrentHashMap<>();
 
   @Override
-  public Stream<Customer> findAll() {
+  public Stream<Customer> findAll(CustomerFetchOptions fetchOptions) {
     return customers
       .values()
       .stream();
