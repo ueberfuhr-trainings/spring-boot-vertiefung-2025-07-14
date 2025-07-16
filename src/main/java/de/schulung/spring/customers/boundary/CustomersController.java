@@ -1,5 +1,6 @@
 package de.schulung.spring.customers.boundary;
 
+import de.schulung.spring.customers.domain.Customer;
 import de.schulung.spring.customers.domain.CustomersService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -84,13 +85,10 @@ class CustomersController {
     @RequestBody
     CustomerDto customerDto,
     @PathVariable("uuid")
-    UUID uuid
+    Customer existingCustomer
   ) {
-    var customer = mapper.map(customerDto);
-    customer.setUuid(uuid);
-    if (!customersService.update(customer)) {
-      throw new NotFoundException();
-    }
+    mapper.copy(customerDto, existingCustomer);
+    customersService.update(existingCustomer);
   }
 
   @DeleteMapping("/{uuid}")
